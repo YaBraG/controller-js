@@ -7,9 +7,10 @@ speed = 0
 let dispAng 
 let dispSpe
 
-let sendValues = {
+let multiAng = 1
+let multiSpeed = 400
 
-}
+let sendValues = {}
 
 function setup() {
     dispAng = document.getElementById("angle")
@@ -17,7 +18,7 @@ function setup() {
     createCanvas(WIDTH, HEIGHT);
     // x = WIDTH *0.5
     // y = HEIGHT *0.5
-    angleMode(DEGREES)
+    // angleMode(DEGREES)
     rectMode(CENTER)
 
 }
@@ -27,8 +28,8 @@ function draw() {
     
     push()
         translate(WIDTH/2, HEIGHT/2)
-        rotate(angle)
-        rect(0,0,50,50+speed);
+        rotate(angle * multiAng)
+        rect(0,0,50,50+(speed*multiSpeed));
         if(controllers[0]){
             update();
         }
@@ -38,14 +39,17 @@ function draw() {
 
 function update () {
     let multi = 5
-    angle =  (controllers[0].axes[0]) * 80
-    speed =  (controllers[0].axes[1]) * 400
-    
-    sendValues.angle = controllers[0].axes[0]
-    sendValues.speed= -controllers[0].axes[1]
 
-    dispAng.innerText = controllers[0].axes[0]
-    dispSpe.innerText = -controllers[0].axes[1]
+    let yAxis = controllers[0].axes[1]
+    let xAxis = controllers[0].axes[0]
+    speed = Math.hypot(xAxis, yAxis)
+    angle = Math.atan2(xAxis,yAxis)
+    
+    sendValues.angle = angle
+    sendValues.speed= speed
+
+    dispAng.innerText = angle
+    dispSpe.innerText = speed
 
     socket.emit('drive-control', sendValues)
 }
